@@ -8,8 +8,8 @@ dotenv.config();
 export const StarboardDatabase: AirtablePlusPlus<Record<string, unknown>> =
   new AirtablePlusPlus({
     apiKey: process.env.AIRTABLE_API_KEY,
-    baseId: "appsRtr3nFQs9LjvE",
-    tableName: "Starboard",
+    baseId: process.env.AIRTABLE_BASE_ID,
+    tableName: process.env.AIRTABLE_TABLE_NAME,
   });
 
 export const app: App = new App({
