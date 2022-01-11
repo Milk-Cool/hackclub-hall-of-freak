@@ -15,8 +15,6 @@ export const StarboardDatabase: AirtablePlusPlus<Record<string, unknown>> =
 export const app: App = new App({
   token: process.env.SLACK_BOLT_TOKEN,
   signingSecret: process.env.SLACK_BOLT_SIGNING_SECRET,
-  appToken: process.env.SLACK_BOLT_APP_TOKEN,
-  socketMode: true,
 });
 
 (async (): Promise<void> => {
