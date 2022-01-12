@@ -3,44 +3,50 @@ import { StarboardDatabase } from "../index";
 
 const reactionRemoveEvent = async (app: App): Promise<void> => {
   app.event("reaction_removed", async ({ event, client }) => {
-    try {
-      if (event.reaction !== "star") return;
-      const exists = await StarboardDatabase.read({
-        filterByFormula: `{Message ID}="${event.item["ts"]}"`,
-        maxRecords: 1,
-      });
+    if (event.reaction !== "star") return;
 
-      if (exists.length <= 0) return;
+    let [entry] = await StarboardDatabase.read({
+      filterByFormula: `{Message ID}="${event.item["ts"]}"`,
+      maxRecords: 1,
+    });
 
-      const updated = await StarboardDatabase.updateWhere(
+    if (entry === undefined) return;
+
+    // Remove a star, if one can be removed
+    if (entry.fields["Stars"] >= 1) {
+      [entry] = await StarboardDatabase.updateWhere(
         `{Message ID}="${event.item["ts"]}"`,
         {
-          Stars: (exists[0]["fields"]["Stars"] as number) - 1,
+          Stars: (entry.fields["Stars"] as number) - 1,
         }
       );
+    }
 
-      if ((updated[0].fields["Stars"] as number) === 0) {
-        if (!updated[0].fields["Posted Message ID"]) return;
-        await client.chat.delete({
-          channel: "C028VGT0JMQ",
-          ts: updated[0].fields["Posted Message ID"] as string,
-        });
-      }
+    if (entry.fields["Posted Message ID"] && entry.fields["Stars"] < 3) {
+      await client.chat.delete({
+        channel: "C028VGT0JMQ",
+        ts: entry.fields["Posted Message ID"] as string,
+      });
 
+      await StarboardDatabase.updateWhere(
+        `{Message ID}="${event.item["ts"]}"`,
+        {
+          "Posted Message ID": "",
+        }
+      );
+    } else if (entry.fields["Posted Message ID"]) {
       const { permalink } = await client.chat.getPermalink({
         channel: event.item["channel"],
         message_ts: event.item["ts"],
       });
 
-      const message = `⭐ *${updated[0].fields["Stars"]}*\n${permalink}`;
+      const text = `⭐ *${entry.fields["Stars"]}*\n${permalink}`;
 
       await client.chat.update({
         channel: "C028VGT0JMQ",
-        ts: updated[0].fields["Posted Message ID"] as string,
-        text: message,
+        ts: entry.fields["Posted Message ID"] as string,
+        text,
       });
-    } catch {
-      console.error;
     }
   });
 };

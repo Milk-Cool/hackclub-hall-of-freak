@@ -3,27 +3,50 @@ import { StarboardDatabase } from "../index";
 
 const reactionAddEvent = async (app: App): Promise<void> => {
   app.event("reaction_added", async ({ event, client }) => {
-    try {
-      if (event.reaction !== "star") return;
-      const exists = await StarboardDatabase.read({
-        filterByFormula: `{Message ID}="${event.item["ts"]}"`,
-        maxRecords: 1,
+    if (event.reaction !== "star") return;
+
+    let [entry] = await StarboardDatabase.read({
+      filterByFormula: `{Message ID}="${event.item["ts"]}"`,
+      maxRecords: 1,
+    });
+
+    if (entry === undefined) {
+      // Create the entry
+      await StarboardDatabase.create({
+        "Message ID": event.item["ts"],
+        "Channel ID": event.item["channel"],
+        Stars: 1,
       });
-      if (exists.length > 0) {
-        const updated = await StarboardDatabase.updateWhere(
-          `{Message ID}="${event.item["ts"]}"`,
-          {
-            Stars: (exists[0]["fields"]["Stars"] as number) + 1,
-          }
-        );
 
-        if ((updated[0].fields["Stars"] as number) < 3) return;
-        const { permalink } = await client.chat.getPermalink({
-          channel: event.item["channel"],
-          message_ts: event.item["ts"],
+      return;
+    }
+
+    // Add the star
+    [entry] = await StarboardDatabase.updateWhere(
+      `{Message ID}="${event.item["ts"]}"`,
+      {
+        Stars: (entry.fields["Stars"] as number) + 1,
+      }
+    );
+
+    if (entry.fields["Stars"] >= 3) {
+      const { permalink } = await client.chat.getPermalink({
+        channel: event.item["channel"],
+        message_ts: event.item["ts"],
+      });
+
+      if (entry.fields["Posted Message ID"]) {
+        // Message already posted, so update
+        const text = `⭐ *${entry.fields["Stars"]}*\n${permalink}`;
+
+        await client.chat.update({
+          channel: "C028VGT0JMQ",
+          ts: entry.fields["Posted Message ID"] as string,
+          text,
         });
-
-        const message = `⭐ *${updated[0].fields["Stars"]}*\n${permalink}`;
+      } else {
+        // Post new message
+        const message = `⭐ *${entry.fields["Stars"]}*\n${permalink}`;
 
         const posted = await client.chat.postMessage({
           channel: "C028VGT0JMQ",
@@ -33,18 +56,10 @@ const reactionAddEvent = async (app: App): Promise<void> => {
         await StarboardDatabase.updateWhere(
           `{Message ID}="${event.item["ts"]}"`,
           {
-            "Posted Message ID": posted.message.ts,
+            "Posted Message ID": posted.ts,
           }
         );
-      } else {
-        await StarboardDatabase.create({
-          "Message ID": event.item["ts"],
-          "Channel ID": event.item["channel"],
-          Stars: 1,
-        });
       }
-    } catch {
-      console.error;
     }
   });
 };
