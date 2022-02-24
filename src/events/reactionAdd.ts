@@ -1,8 +1,9 @@
-import { App } from "@slack/bolt";
+import { App, ReactionMessageItem } from "@slack/bolt";
 import { StarboardDatabase } from "../index";
 
 const reactionAddEvent = async (app: App): Promise<void> => {
   app.event("reaction_added", async ({ event, client }) => {
+    if ((event.item as ReactionMessageItem).channel === "C028VGT0JMQ") return;
     if (event.reaction !== "star") return;
 
     let [entry] = await StarboardDatabase.read({
