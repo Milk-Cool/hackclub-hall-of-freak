@@ -1,51 +1,60 @@
 import { App, ReactionMessageItem } from "@slack/bolt";
-import { StarboardDatabase } from "../index";
+import prisma from "../utils/prisma";
 
 const reactionRemoveEvent = async (app: App): Promise<void> => {
   app.event("reaction_removed", async ({ event, client }) => {
     if ((event.item as ReactionMessageItem).channel === "C028VGT0JMQ") return;
     if (event.reaction !== "star") return;
 
-    let [entry] = await StarboardDatabase.read({
-      filterByFormula: `{Message ID}="${event.item["ts"]}"`,
-      maxRecords: 1,
+    let entry = await prisma.message.findFirst({
+      where: {
+        messageId: event.item["ts"],
+      },
     });
 
-    if (entry === undefined) return;
+    if (entry === null) return;
 
     // Remove a star, if one can be removed
-    if (entry.fields["Stars"] >= 1) {
-      [entry] = await StarboardDatabase.updateWhere(
-        `{Message ID}="${event.item["ts"]}"`,
+    if (entry.stars >= 1) {
+      entry = await prisma.message.update(
         {
-          Stars: (entry.fields["Stars"] as number) - 1,
+          where: {
+            messageId: event.item["ts"],
+          },
+          data: {
+            stars: entry.stars - 1,
+          }
         }
       );
     }
 
-    if (entry.fields["Posted Message ID"] && entry.fields["Stars"] < 3) {
+    if (entry.postedMessageId && entry.stars < 3) {
       await client.chat.delete({
         channel: "C028VGT0JMQ",
-        ts: entry.fields["Posted Message ID"] as string,
+        ts: entry.postedMessageId as string,
       });
 
-      await StarboardDatabase.updateWhere(
-        `{Message ID}="${event.item["ts"]}"`,
+      await prisma.message.update(
         {
-          "Posted Message ID": "",
+          where: {
+            messageId: event.item["ts"],
+          },
+          data: {
+            postedMessageId: "",
+          }
         }
       );
-    } else if (entry.fields["Posted Message ID"]) {
+    } else if (entry.postedMessageId) {
       const { permalink } = await client.chat.getPermalink({
         channel: event.item["channel"],
         message_ts: event.item["ts"],
       });
 
-      const text = `⭐ *${entry.fields["Stars"]}*\n${permalink}`;
+      const text = `⭐ *${entry.stars}*\n${permalink}`;
 
       await client.chat.update({
         channel: "C028VGT0JMQ",
-        ts: entry.fields["Posted Message ID"] as string,
+        ts: entry.postedMessageId as string,
         text,
       });
     }

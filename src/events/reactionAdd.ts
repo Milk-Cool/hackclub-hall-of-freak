@@ -1,63 +1,74 @@
 import { App, ReactionMessageItem } from "@slack/bolt";
-import { StarboardDatabase } from "../index";
+import prisma from "../utils/prisma";
 
 const reactionAddEvent = async (app: App): Promise<void> => {
   app.event("reaction_added", async ({ event, client }) => {
     if ((event.item as ReactionMessageItem).channel === "C028VGT0JMQ") return;
     if (event.reaction !== "star") return;
 
-    let [entry] = await StarboardDatabase.read({
-      filterByFormula: `{Message ID}="${event.item["ts"]}"`,
-      maxRecords: 1,
+    let entry = await prisma.message.findFirst({
+      where: {
+        messageId: event.item["ts"],
+      }
     });
 
-    if (entry === undefined) {
+    if (entry === null) {
       // Create the entry
-      await StarboardDatabase.create({
-        "Message ID": event.item["ts"],
-        "Channel ID": event.item["channel"],
-        Stars: 1,
+      await prisma.message.create({
+        data: {
+          messageId: event.item["ts"],
+          channelId: event.item["channel"],
+          stars: 1,
+        }
       });
 
       return;
     }
 
     // Add the star
-    [entry] = await StarboardDatabase.updateWhere(
-      `{Message ID}="${event.item["ts"]}"`,
+    entry = await prisma.message.update(
       {
-        Stars: (entry.fields["Stars"] as number) + 1,
+        where: {
+          messageId: event.item["ts"],
+        },
+        data: {
+          stars: entry.stars + 1,
+        }
       }
     );
 
-    if (entry.fields["Stars"] >= 3) {
+    if (entry.stars >= 3) {
       const { permalink } = await client.chat.getPermalink({
         channel: event.item["channel"],
         message_ts: event.item["ts"],
       });
 
-      if (entry.fields["Posted Message ID"]) {
+      if (entry.postedMessageId) {
         // Message already posted, so update
-        const text = `⭐ *${entry.fields["Stars"]}*\n${permalink}`;
+        const text = `⭐ *${entry.stars}*\n${permalink}`;
 
         await client.chat.update({
           channel: "C028VGT0JMQ",
-          ts: entry.fields["Posted Message ID"] as string,
+          ts: entry.postedMessageId as string,
           text,
         });
       } else {
         // Post new message
-        const message = `⭐ *${entry.fields["Stars"]}*\n${permalink}`;
+        const message = `⭐ *${entry.stars}*\n${permalink}`;
 
         const posted = await client.chat.postMessage({
           channel: "C028VGT0JMQ",
           text: message,
         });
 
-        await StarboardDatabase.updateWhere(
-          `{Message ID}="${event.item["ts"]}"`,
+        await prisma.message.update(
           {
-            "Posted Message ID": posted.ts,
+            where: {
+              messageId: event.item["ts"],
+            },
+            data: {
+              postedMessageId: posted.ts,
+            }
           }
         );
       }
