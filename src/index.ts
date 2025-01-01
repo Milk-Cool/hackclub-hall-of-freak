@@ -1,12 +1,18 @@
 import * as dotenv from "dotenv";
-import { App } from "@slack/bolt";
+import { App, ExpressReceiver } from "@slack/bolt";
 import * as events from "./events/index";
 
 dotenv.config();
 
-export const app: App = new App({
-  token: process.env.SLACK_BOLT_TOKEN,
+const expressReceiver = new ExpressReceiver({
   signingSecret: process.env.SLACK_BOLT_SIGNING_SECRET,
+});
+export const app = new App({
+  token: process.env.SLACK_BOLT_TOKEN,
+  receiver: expressReceiver,
+});
+expressReceiver.app.get("/status", (req, res) => {
+  res.status(200).send();
 });
 
 (async (): Promise<void> => {
