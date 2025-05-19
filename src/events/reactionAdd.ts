@@ -38,6 +38,34 @@ const reactionAddEvent = async (app: App): Promise<void> => {
     );
 
     if (entry.stars >= 5) {
+      const recentEntries = await prisma.message.findMany({
+        where: {
+          channelId: event.item.channel,
+          postedMessageId: {
+            startsWith: "1"
+          },
+        },
+        take: 5,
+        orderBy: {
+          postedMessageId: "desc"
+        }
+      });
+
+      // cooldown! no more than 3 in the same channel in 5 minutes
+
+      let count = 0;
+      for (const recentEntry of recentEntries) {
+        const time = new Date(Number(recentEntry.postedMessageId ?? 0));
+
+        if (time.valueOf() > new Date().valueOf() - (1000 * 60 * 5)) {
+          count++;
+        }
+      }
+
+      if (count >= 3) {
+        return;
+      }
+
       const { permalink } = await client.chat.getPermalink({
         channel: event.item["channel"],
         message_ts: event.item["ts"],
