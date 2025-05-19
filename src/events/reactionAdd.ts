@@ -37,7 +37,7 @@ const reactionAddEvent = async (app: App): Promise<void> => {
       }
     );
 
-    if (entry.stars >= 3) {
+    if (entry.stars >= 5) {
       const { permalink } = await client.chat.getPermalink({
         channel: event.item["channel"],
         message_ts: event.item["ts"],

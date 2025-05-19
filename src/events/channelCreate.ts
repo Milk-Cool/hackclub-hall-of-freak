@@ -9,13 +9,13 @@ const channelCreateEvent = async (app: App): Promise<void> => {
       await client.chat.postEphemeral({
         user: userId,
         channel: channelId,
-        text: "Hey! I'm Ninja Ten Thousand, and I keep an eye out for messages (3+ :star: reactions) worthy of the hall of fame! If you'd like to opt-out and remove me from the channel, just press the button. You can add me back at any time!",
+        text: "Hey! I'm Ninja Ten Thousand, and I keep an eye out for messages (5+ :star: reactions) worthy of the hall of fame! If you'd like to opt-out and remove me from the channel, just press the button. You can add me back at any time!",
         blocks: [
           {
             type: "section",
             text: {
               type: "mrkdwn",
-              text: "Hey! I'm Ninja Ten Thousand, and I keep an eye out for messages (3+ :star: reactions) worthy of the <#C028VGT0JMQ>! If you'd like to opt-out and remove me from the channel, just press the button. You can add me back at any time!",
+              text: "Hey! I'm Ninja Ten Thousand, and I keep an eye out for messages (5+ :star: reactions) worthy of the <#C028VGT0JMQ>! If you'd like to opt-out and remove me from the channel, just press the button. You can add me back at any time!",
             },
           },
           {

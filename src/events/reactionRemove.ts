@@ -28,7 +28,7 @@ const reactionRemoveEvent = async (app: App): Promise<void> => {
       );
     }
 
-    if (entry.postedMessageId && entry.stars < 3) {
+    if (entry.postedMessageId && entry.stars < 5) {
       await client.chat.delete({
         channel: "C028VGT0JMQ",
         ts: entry.postedMessageId as string,
