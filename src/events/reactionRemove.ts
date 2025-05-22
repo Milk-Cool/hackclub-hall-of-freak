@@ -5,6 +5,7 @@ const reactionRemoveEvent = async (app: App): Promise<void> => {
   app.event("reaction_removed", async ({ event, client }) => {
     if ((event.item as ReactionMessageItem).channel === "C028VGT0JMQ") return;
     if (event.reaction !== "star") return;
+    if (event.item_user === event.user) return;
 
     let entry = await prisma.message.findFirst({
       where: {
