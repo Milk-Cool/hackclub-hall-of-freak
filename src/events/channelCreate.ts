@@ -15,7 +15,7 @@ const channelCreateEvent = async (app: App): Promise<void> => {
             type: "section",
             text: {
               type: "mrkdwn",
-              text: "Hey! I'm Ninja Ten Thousand, and I keep an eye out for messages (5+ :star: reactions) worthy of the <#C028VGT0JMQ>! If you'd like to opt-out and remove me from the channel, just press the button. You can add me back at any time!",
+              text: "Hey! I'm Ninja Ten Thousand, and I keep an eye out for messages (5+ :star: reactions) worthy of the <#C09BDNDHMD5>! If you'd like to opt-out and remove me from the channel, just press the button. You can add me back at any time!",
             },
           },
           {

@@ -3,7 +3,7 @@ import prisma from "../utils/prisma";
 
 const reactionAddEvent = async (app: App): Promise<void> => {
   app.event("reaction_added", async ({ event, client }) => {
-    if ((event.item as ReactionMessageItem).channel === "C028VGT0JMQ") return;
+    if ((event.item as ReactionMessageItem).channel === "C09BDNDHMD5") return;
     if (event.reaction !== "star") return;
     if (event.item_user === event.user) return;
 
@@ -77,7 +77,7 @@ const reactionAddEvent = async (app: App): Promise<void> => {
         const text = `👅 *${entry.stars}*\n${permalink}`;
 
         await client.chat.update({
-          channel: "C028VGT0JMQ",
+          channel: "C09BDNDHMD5",
           ts: entry.postedMessageId as string,
           text,
         });
@@ -86,7 +86,7 @@ const reactionAddEvent = async (app: App): Promise<void> => {
         const message = `👅 *${entry.stars}*\n${permalink}`;
 
         const posted = await client.chat.postMessage({
-          channel: "C028VGT0JMQ",
+          channel: "C09BDNDHMD5",
           text: message,
         });
 
