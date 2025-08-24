@@ -51,7 +51,7 @@ const reactionRemoveEvent = async (app: App): Promise<void> => {
         message_ts: event.item["ts"],
       });
 
-      const text = `⭐ *${entry.stars}*\n${permalink}`;
+      const text = `👅 *${entry.stars}*\n${permalink}`;
 
       await client.chat.update({
         channel: "C028VGT0JMQ",

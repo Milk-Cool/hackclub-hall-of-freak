@@ -74,7 +74,7 @@ const reactionAddEvent = async (app: App): Promise<void> => {
 
       if (entry.postedMessageId) {
         // Message already posted, so update
-        const text = `⭐ *${entry.stars}*\n${permalink}`;
+        const text = `👅 *${entry.stars}*\n${permalink}`;
 
         await client.chat.update({
           channel: "C028VGT0JMQ",
@@ -83,7 +83,7 @@ const reactionAddEvent = async (app: App): Promise<void> => {
         });
       } else {
         // Post new message
-        const message = `⭐ *${entry.stars}*\n${permalink}`;
+        const message = `👅 *${entry.stars}*\n${permalink}`;
 
         const posted = await client.chat.postMessage({
           channel: "C028VGT0JMQ",
