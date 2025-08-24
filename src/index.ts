@@ -1,22 +1,28 @@
 import * as dotenv from "dotenv";
-import { App, ExpressReceiver } from "@slack/bolt";
+import { App, ExpressReceiver, SocketModeReceiver } from "@slack/bolt";
 import * as events from "./events/index";
 
 dotenv.config();
 
-const expressReceiver = new ExpressReceiver({
-  signingSecret: process.env.SLACK_BOLT_SIGNING_SECRET,
-});
+// const receiver = new SocketModeReceiver({
+//   appToken: process.env.SOCKET_TOKEN
+// }/*{
+//   signingSecret: process.env.SLACK_BOLT_SIGNING_SECRET,
+// }*/);
 export const app = new App({
   token: process.env.SLACK_BOLT_TOKEN,
-  receiver: expressReceiver,
+  socketMode: true,
+  appToken: process.env.SOCKET_TOKEN
+  // receiver: receiver,
 });
-expressReceiver.app.get("/status", (req, res) => {
-  res.status(200).send();
-});
+// expressReceiver.app.get("/status", (req, res) => {
+//   res.status(200).send();
+// });
 
 (async (): Promise<void> => {
-  await app.start(Number(process.env.PORT) || 3000);
+  await app.start(/*Number(process.env.PORT) || 3000*/);
+  // await receiver.start();
+  // await new SocketModeHandler
   console.log("Server started!");
 
   // credits to Rishi (https://github.com/rishiosaur) for this

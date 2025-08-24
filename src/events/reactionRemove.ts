@@ -4,6 +4,7 @@ import { REACTIONS } from "../reactions";
 
 const reactionRemoveEvent = async (app: App): Promise<void> => {
   app.event("reaction_removed", async ({ event, client }) => {
+    console.log(event);
     if ((event.item as ReactionMessageItem).channel === "C09BDNDHMD5") return;
     if (!REACTIONS.includes(event.reaction)) return;
     if (event.item_user === event.user) return;

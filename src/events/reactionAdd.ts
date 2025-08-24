@@ -16,7 +16,7 @@ const reactionAddEvent = async (app: App): Promise<void> => {
 
     if (entry === null) {
       // Create the entry
-      await prisma.message.create({
+      entry = await prisma.message.create({
         data: {
           messageId: event.item["ts"],
           channelId: event.item["channel"],
@@ -39,6 +39,7 @@ const reactionAddEvent = async (app: App): Promise<void> => {
       }
     );
 
+    console.log(5, entry.stars);
     if (entry.stars >= 5) {
       const recentEntries = await prisma.message.findMany({
         where: {
@@ -47,7 +48,7 @@ const reactionAddEvent = async (app: App): Promise<void> => {
             startsWith: "1"
           },
         },
-        take: 5,
+        take: 1,
         orderBy: {
           postedMessageId: "desc"
         }
