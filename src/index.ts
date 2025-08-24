@@ -21,6 +21,7 @@ expressReceiver.app.get("/status", (req, res) => {
 
   // credits to Rishi (https://github.com/rishiosaur) for this
   for (const [event, handler] of Object.entries(events)) {
+    if(!process.env.CAN_JOIN && event === "ChannelCreate") continue;
     handler(app);
     console.log(`Loaded event: ${event}`);
   }
