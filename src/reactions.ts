@@ -1,0 +1,1 @@
+export const REACTIONS = ["sahana", "freaky-emoji", "tongue", "stuck_out_tongue", "stuck_out_tongue_winking_eye", "zany_face", "money_mouth_face"];

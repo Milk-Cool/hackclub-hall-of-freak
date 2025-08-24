@@ -1,10 +1,11 @@
 import { App, ReactionMessageItem } from "@slack/bolt";
 import prisma from "../utils/prisma";
+import { REACTIONS } from "../reactions";
 
 const reactionAddEvent = async (app: App): Promise<void> => {
   app.event("reaction_added", async ({ event, client }) => {
     if ((event.item as ReactionMessageItem).channel === "C09BDNDHMD5") return;
-    if (event.reaction !== "star") return;
+    if (!REACTIONS.includes(event.reaction)) return;
     if (event.item_user === event.user) return;
 
     let entry = await prisma.message.findFirst({
